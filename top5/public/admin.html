@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin: TOP 5 ECOM STORES</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600;700&display=swap">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/admin.css">
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>TOP 5 ECOM STORES <span class="badge plain">Admin</span></a>
+      <div class="header-actions">
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch light or dark mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <button class="btn btn-outline btn-sm" type="button" id="logout-btn" hidden>Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap admin-main">
+    <section id="login-view" class="login" hidden>
+      <form id="login-form" class="panel">
+        <h1>Admin sign in</h1>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+        <p class="form-error" id="login-error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="dash-view" hidden>
+      <div class="panel publish-bar">
+        <div class="publish-info">
+          <div><strong>Live list:</strong> <span id="live-info">…</span></div>
+          <div><span class="badge" id="dirty-badge" hidden>Unpublished changes</span><span class="muted" id="clean-note" hidden>The live list matches your draft.</span></div>
+        </div>
+        <div class="publish-actions">
+          <label class="check"><input type="checkbox" id="new-edition" checked> Start a new edition</label>
+          <button class="btn btn-primary" type="button" id="publish-btn">Publish</button>
+        </div>
+        <p class="hint">Publish copies your draft to the public page and sets "Last updated" to today. With <em>new edition</em> ticked, new buyers pay for this edition and earlier buyers keep access for 30 more days. Untick it for small fixes such as typos.</p>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-btn-stores" aria-selected="true" data-tab="stores">Stores</button>
+        <button type="button" role="tab" id="tab-btn-purchases" aria-selected="false" data-tab="purchases">Purchases</button>
+      </div>
+
+      <section id="tab-stores" role="tabpanel" aria-labelledby="tab-btn-stores">
+        <div class="row-head">
+          <h2>Draft list</h2>
+          <button class="btn btn-outline btn-sm" type="button" id="add-btn">+ Add store</button>
+        </div>
+        <p class="hint">Drag rows or use the arrows to set the order. Position 1 appears first. The <strong>free pick</strong> is fully visible to everyone; the rest are locked. Changes save to the draft automatically and go live when you publish.</p>
+        <ol class="store-list" id="store-list"></ol>
+      </section>
+
+      <section id="tab-purchases" role="tabpanel" aria-labelledby="tab-btn-purchases" hidden>
+        <div class="row-head">
+          <h2>Purchases</h2>
+          <span class="muted" id="purchase-totals"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Payer email</th><th>Amount</th><th>PayPal order ID</th><th>Status</th><th>Refunded</th><th></th></tr></thead>
+            <tbody id="purchase-rows"></tbody>
+          </table>
+        </div>
+        <p class="hint">"Copy link" makes a fresh personal access link for that buyer, for when someone loses theirs. It stops working if the purchase is refunded.</p>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="store-dialog" class="dialog">
+    <form id="store-form" class="store-form" novalidate>
+      <div class="dialog-head">
+        <h2 id="dialog-title">Add store</h2>
+        <button type="button" class="icon-btn" id="dialog-close" aria-label="Close">✕</button>
+      </div>
+      <div class="form-grid">
+        <label class="span-2">Store name<input name="name" required maxlength="80"></label>
+        <label>Niche / category<input name="category" required maxlength="60"></label>
+        <label>Platform<input name="platform" list="platforms" required maxlength="40"></label>
+        <label>Monthly revenue ($)<input name="monthlyRevenue" inputmode="decimal" required></label>
+        <label>Monthly profit ($)<input name="monthlyProfit" inputmode="decimal" required></label>
+        <label>Asking price ($)<input name="askingPrice" inputmode="decimal" required></label>
+        <label>Multiple (auto)<input id="multiple-preview" readonly tabindex="-1"></label>
+        <label>Store age (months)<input name="storeAgeMonths" inputmode="numeric" required></label>
+        <label>Monthly traffic (visits)<input name="monthlyTraffic" inputmode="numeric" required></label>
+        <label class="span-2">Why I picked it<textarea name="whyPicked" rows="4" required maxlength="800"></textarea></label>
+        <label>Listing URL<input name="listingUrl" type="url" required placeholder="https://"></label>
+        <label>Listed on<input name="listingSource" list="sources" maxlength="40" placeholder="Flippa, Empire Flippers, Direct seller…"></label>
+        <div class="span-2 image-field">
+          <span class="label">Logo or screenshot (optional)</span>
+          <div class="image-row">
+            <img id="image-preview" alt="" hidden>
+            <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp,image/gif">
+            <button type="button" class="btn btn-outline btn-sm" id="image-remove" hidden>Remove image</button>
+          </div>
+        </div>
+      </div>
+      <p class="form-error" id="form-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-outline" id="dialog-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save to draft</button>
+      </div>
+    </form>
+  </dialog>
+
+  <datalist id="platforms"><option value="Shopify"><option value="WooCommerce"><option value="BigCommerce"><option value="Wix"><option value="Squarespace"><option value="Etsy"><option value="Amazon FBA"></datalist>
+  <datalist id="sources"><option value="Flippa"><option value="Empire Flippers"><option value="Acquire.com"><option value="Motion Invest"><option value="Direct seller"></datalist>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script src="/js/admin.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thank you: TOP 5 ECOM STORES</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FF6719'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='17' fill='white' text-anchor='middle'%3E5%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600;700&display=swap">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/main.css">
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>TOP 5 ECOM STORES</a>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch light or dark mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </header>
+  <main class="wrap page">
+    <div id="state-loading"><h1>Checking your access…</h1></div>
+
+    <div id="state-ok" hidden>
+      <h1>You're in. Thank you.</h1>
+      <p>Your payment went through and the full list is unlocked in this browser.</p>
+      <h2>Save your personal link</h2>
+      <p>This link unlocks the list on any device. <strong>Bookmark it or save it somewhere safe.</strong> Anyone with the link can open the list, so keep it to yourself.</p>
+      <div class="linkbox">
+        <label class="sr-only" for="magic-link">Your personal access link</label>
+        <input id="magic-link" type="text" readonly>
+        <button class="btn btn-primary" type="button" id="copy-link">Copy link</button>
+      </div>
+      <p class="fine" id="term-note"></p>
+      <p><a class="btn btn-outline" href="/#list">See all 5 stores</a></p>
+      <h2>A reminder before you buy anything</h2>
+      <p>These are stores I think are worth a close look, not recommendations to buy. Verify revenue, traffic, suppliers and ownership yourself, and deal with the seller or their marketplace directly.</p>
+    </div>
+
+    <div id="state-pending" hidden>
+      <h1>Your payment is pending.</h1>
+      <p>PayPal hasn't confirmed the payment yet. Your list unlocks as soon as it clears, usually within a few minutes but sometimes a few days for bank transfers.</p>
+      <p>Save this link now. It will start working once the payment clears:</p>
+      <div class="linkbox">
+        <label class="sr-only" for="magic-link-pending">Your personal access link</label>
+        <input id="magic-link-pending" type="text" readonly>
+      </div>
+    </div>
+
+    <div id="state-none" hidden>
+      <h1>No access pass in this browser.</h1>
+      <p>If you've paid, open the personal link from your purchase on this device. If you've lost it, get in touch with your PayPal receipt and I'll send you a new one.</p>
+      <p><a class="btn btn-primary" href="/#unlock">Go to the list</a></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>This site only curates. I'm not a broker, I don't hold funds, and I'm not a party to any sale. Due diligence is 100% on the buyer. Nothing here is financial advice or a guarantee of performance.</p>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="https://starthere.prockstem.com">Start here: starthere.prockstem.com</a>
+        <a href="/terms">Terms</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+  </footer>
+  <script>
+  (async function () {
+    var show = function (id) {
+      ['loading', 'ok', 'pending', 'none'].forEach(function (s) { document.getElementById('state-' + s).hidden = s !== id; });
+    };
+    try {
+      var r = await fetch('/.netlify/functions/access-status', { credentials: 'same-origin' });
+      var d = await r.json();
+      if (d.valid) {
+        document.getElementById('magic-link').value = d.magicLink;
+        document.getElementById('term-note').textContent = d.accessMode === 'forever'
+          ? 'Your access does not expire.'
+          : 'Your access covers this edition of the list, plus 30 days after the next edition is published.';
+        show('ok');
+      } else if (d.reason === 'pending' && d.magicLink) {
+        document.getElementById('magic-link-pending').value = d.magicLink;
+        show('pending');
+      } else {
+        show('none');
+      }
+    } catch (e) { show('none'); }
+    document.getElementById('copy-link').addEventListener('click', async function () {
+      var input = document.getElementById('magic-link');
+      try { await navigator.clipboard.writeText(input.value); this.textContent = 'Copied'; }
+      catch (e) { input.select(); document.execCommand('copy'); this.textContent = 'Copied'; }
+    });
+  })();
+  </script>
+</body>
+</html>

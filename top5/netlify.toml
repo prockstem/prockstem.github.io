@@ -1,0 +1,77 @@
+# TOP 5 ECOM STORES - https://top5.prockstem.com
+# If this folder lives inside a bigger repo, set Netlify's "Base directory" to top5.
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[dev]
+  port = 8888
+  framework = "#static"
+
+# Pretty URLs
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/access"
+  to = "/.netlify/functions/access-redeem"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/success"
+  to = "/success.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000"
+
+# The admin page loads no third-party scripts, so it gets a strict CSP.
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+[[headers]]
+  for = "/js/admin.js"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/success"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Cache-Control = "no-store"
+    Referrer-Policy = "no-referrer"

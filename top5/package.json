@@ -1,0 +1,16 @@
+{
+  "name": "top5-ecom-stores",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "mock:paypal": "node scripts/mock-paypal.mjs",
+    "test:paywall": "node scripts/test-paywall.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

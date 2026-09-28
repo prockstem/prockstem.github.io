@@ -1,0 +1,65 @@
+/* TOP 5 ECOM STORES theme: every color and font lives here.
+   Palette approved in chat (Substack-inspired). Light is the default; dark
+   follows the visitor's system setting unless they pick one with the toggle. */
+
+:root {
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-bg: #FFFFFF;
+  --color-surface: #F9F9F9;
+  --color-text: #363737;
+  --color-muted: #757575;
+  --color-border: #E6E6E6;
+  --color-accent: #FF6719;
+  --color-accent-hover: #E85A0F;
+  --color-on-accent: #FFFFFF;
+
+  /* Derived helpers (tints of the tokens above) */
+  --color-accent-soft: rgba(255, 103, 25, 0.10);
+  --color-overlay: rgba(255, 255, 255, 0.55);
+  --color-success: #1F8A4C;
+  --color-danger: #C62828;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #141414;
+    --color-surface: #1E1E1E;
+    --color-text: #EDEDED;
+    --color-muted: #A3A3A3;
+    --color-border: #2E2E2E;
+    --color-accent: #FF6719;
+    --color-accent-hover: #FF7F3D;
+    --color-on-accent: #FFFFFF;
+    --color-accent-soft: rgba(255, 103, 25, 0.16);
+    --color-overlay: rgba(20, 20, 20, 0.55);
+    --color-success: #4CC27E;
+    --color-danger: #FF6B6B;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #141414;
+  --color-surface: #1E1E1E;
+  --color-text: #EDEDED;
+  --color-muted: #A3A3A3;
+  --color-border: #2E2E2E;
+  --color-accent: #FF6719;
+  --color-accent-hover: #FF7F3D;
+  --color-on-accent: #FFFFFF;
+  --color-accent-soft: rgba(255, 103, 25, 0.16);
+  --color-overlay: rgba(20, 20, 20, 0.55);
+  --color-success: #4CC27E;
+  --color-danger: #FF6B6B;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
