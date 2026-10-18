@@ -1,0 +1,9 @@
+[server]
+# Books can be big; default upload limit is 200 MB.
+maxUploadSize = 1000
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
