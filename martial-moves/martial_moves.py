@@ -537,6 +537,22 @@ def _fallback_rank(merged: list[dict]) -> dict:
 
 # --------------------------------------------------------------------------- reports
 
+PAGE_REF = re.compile(r"\bpp?\.\s*(\d+)(?:\s*[-\u2013]\s*(\d+))?", re.IGNORECASE)
+
+
+def page_numbers(refs: list[str], limit: int = 50) -> list[int]:
+    """PDF page numbers (1-based) cited in refs like "p. 12" or "pp. 12-14", in order, no repeats."""
+    pages: list[int] = []
+    for ref in refs or []:
+        for m in PAGE_REF.finditer(ref):
+            start = int(m.group(1))
+            end = int(m.group(2)) if m.group(2) else start
+            for n in range(start, min(end, start + 10) + 1):
+                if n not in pages:
+                    pages.append(n)
+    return pages[:limit]
+
+
 def md_report(result: dict) -> str:
     """Markdown report for one book result."""
     lines = [f"# {result['book']}", "",
@@ -673,7 +689,8 @@ def process_book(path: str | Path, client, model: str = DEFAULT_MODEL, out_dir: 
         ranked = _fallback_rank(merged)
 
     result = {
-        "book": name, "model": model, "chunks": len(chunks), "technique_count": len(merged),
+        "book": name, "source": str(Path(path).resolve()), "model": model,
+        "chunks": len(chunks), "technique_count": len(merged),
         "attacks": sorted(ranked.get("attacks", []), key=lambda m: m.get("rank", 99))[:5],
         "defenses": sorted(ranked.get("defenses", []), key=lambda m: m.get("rank", 99))[:5],
         "all_techniques": merged,

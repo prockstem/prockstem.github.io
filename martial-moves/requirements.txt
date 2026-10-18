@@ -1,5 +1,6 @@
 anthropic>=1.15
 streamlit>=1.50
 pypdf>=5.0
+pypdfium2>=4.30
 EbookLib>=0.18
 beautifulsoup4>=4.12

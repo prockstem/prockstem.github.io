@@ -244,6 +244,11 @@ class FlowTests(unittest.TestCase):
         mm.process_book(JUDO, client, "claude-haiku-5-5", self.out, progress=self.progress)
         self.assertNotIn("fallbacks", client.calls[0])
 
+    def test_page_numbers(self):
+        self.assertEqual(mm.page_numbers(["p. 12", "pp. 14-16", "p. 12", "§3 Throws", "p. 20–21"]),
+                         [12, 14, 15, 16, 20, 21])
+        self.assertEqual(mm.page_numbers([]), [])
+
     def test_test_key(self):
         with mock.patch.object(mm, "make_client", lambda k=None: FakeClient()):
             self.assertEqual(mm.test_key("sk-ant-good"), "")
@@ -311,6 +316,28 @@ class AppTests(unittest.TestCase):
         self.assertIn(r["defenses"][0]["name"], md)
         zipped = app_module.build_zip(mm.load_results(results_dir))
         self.assertGreater(len(zipped), 100)
+
+    def test_results_show_page_screenshots(self):
+        import app as app_module
+        results_dir = Path(os.environ["MARTIAL_MOVES_RESULTS"])
+        r = mm.process_book(KARATE, FakeClient(), "claude-sonnet-5-5", results_dir, progress=lambda e: None)
+        self.assertEqual(Path(r["source"]), KARATE.resolve())
+        png = app_module.page_png(str(KARATE), 2, 0.0)
+        self.assertTrue(png.startswith(b"\x89PNG"))
+        self.assertIsNone(app_module.page_png(str(KARATE), 99, 0.0))
+        from streamlit.testing.v1 import AppTest
+        at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+        at.radio[0].set_value("🏆 Results").run()
+        self.assertFalse(at.exception, at.exception)
+        labels = [e.label for e in at.expander]
+        self.assertTrue(any(l.startswith("📄 Page") for l in labels), labels)
+        self.assertGreater(len(at.get("image")), 0)
+        # EPUB results have no page images.
+        mm.process_book(JUDO, FakeClient(), "claude-sonnet-5-5", results_dir, progress=lambda e: None)
+        at.run()
+        at.selectbox[0].set_value("Judo Basics.epub").run()
+        self.assertFalse(at.exception, at.exception)
+        self.assertFalse(any(e.label.startswith("📄 Page") for e in at.expander))
 
     def test_job_runs_batch_one_failure_does_not_stop_others(self):
         import app as app_module

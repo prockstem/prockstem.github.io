@@ -49,6 +49,7 @@ The app runs on your own computer and opens in your web browser. You don't need 
    - Work is saved as it goes. If you cancel, or the computer goes to sleep, click **Analyze** again and it picks up where it left off without paying twice.
 4. **🏆 Results**
    - Pick a book. You'll see **Top 5 Attacks** and **Top 5 Defenses** side by side. Each card shows the move's other names, how it's done, why it ranks, and the pages or sections where it appears.
+   - For PDF books, click **📄 Page …** under a move to see a picture of the actual book page, with the photos and diagrams. (EPUB and TXT books don't have fixed pages, so they have no page pictures.)
    - Download that book's report (`.md`, which opens in any text editor) or data (`.json`). **Download all (zip)** gives you every report plus `summary.md`.
    - Results from earlier runs appear here automatically. They're stored in the `results` folder.
 

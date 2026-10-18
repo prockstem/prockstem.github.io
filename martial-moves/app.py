@@ -350,7 +350,56 @@ def progress_section():
 
 
 # ---- results tab
-def move_card(m: dict):
+MAX_SCREENSHOTS = 4   # page images shown per move
+
+
+def find_source(result: dict) -> Path | None:
+    """The book file a result came from: its saved path, or a copy in the uploads folder."""
+    src = result.get("source")
+    if src and Path(src).is_file():
+        return Path(src)
+    target = mm.safe_stem(result["book"]) + Path(result["book"]).suffix.lower()
+    matches = sorted(UPLOADS_DIR.glob(f"*/{target}"), key=lambda p: p.stat().st_mtime, reverse=True)
+    return matches[0] if matches else None
+
+
+@st.cache_data(show_spinner=False, max_entries=300)
+def page_png(path_str: str, page_no: int, _mtime: float) -> bytes | None:
+    """Render one PDF page (1-based) to PNG, or None if it can't be rendered."""
+    import pypdfium2 as pdfium
+    try:
+        pdf = pdfium.PdfDocument(path_str)
+        try:
+            if not 1 <= page_no <= len(pdf):
+                return None
+            image = pdf[page_no - 1].render(scale=1.4).to_pil()
+        finally:
+            pdf.close()
+        buf = io.BytesIO()
+        image.convert("RGB").save(buf, format="PNG", optimize=True)
+        return buf.getvalue()
+    except Exception:
+        return None
+
+
+def page_screenshots(m: dict, source: Path | None):
+    pages = mm.page_numbers(m.get("refs", []))
+    if not pages or source is None or source.suffix.lower() != ".pdf":
+        return
+    shown = pages[:MAX_SCREENSHOTS]
+    label = f"📄 Page{'s' if len(shown) > 1 else ''} {', '.join(map(str, shown))}"
+    with st.expander(label):
+        for n in shown:
+            png = page_png(str(source), n, source.stat().st_mtime)
+            if png:
+                st.image(png, caption=f"Page {n}", width="stretch")
+            else:
+                st.caption(f"Page {n} couldn't be shown.")
+        if len(pages) > len(shown):
+            st.caption(f"Also mentioned on page(s) {', '.join(map(str, pages[len(shown):]))}.")
+
+
+def move_card(m: dict, source: Path | None = None):
     with st.container(border=True):
         st.markdown(f"#### {m.get('rank', '')}. {m.get('name', '')}")
         if m.get("aliases"):
@@ -359,6 +408,7 @@ def move_card(m: dict):
         st.markdown(f"**Why it ranks:** {m.get('why', '')}")
         if m.get("refs"):
             st.caption("📖 " + ", ".join(m["refs"]))
+        page_screenshots(m, source)
 
 
 def build_zip(results: list[dict]) -> bytes:
@@ -383,7 +433,13 @@ def results_section():
     default = names.index(j.succeeded[-1]) if j and j.succeeded and j.succeeded[-1] in names else 0
     choice = st.selectbox("Book", names, index=default)
     r = results[names.index(choice)]
-    st.caption(f"{r.get('technique_count', 0)} techniques found · model {r.get('model', '?')}")
+    source = find_source(r)
+    note = ""
+    if source is None and r["book"].lower().endswith(".pdf"):
+        note = " · page screenshots unavailable (original PDF not found; analyze it again to restore them)"
+    elif source is not None and source.suffix.lower() == ".pdf":
+        note = " · open 📄 under a move to see the book page"
+    st.caption(f"{r.get('technique_count', 0)} techniques found · model {r.get('model', '?')}{note}")
 
     left, right = st.columns(2)
     for col, title, key in ((left, "🗡️ Top 5 Attacks", "attacks"), (right, "🛡️ Top 5 Defenses", "defenses")):
@@ -392,7 +448,7 @@ def results_section():
             if not r.get(key):
                 st.caption("None found in this book.")
             for m in r.get(key, []):
-                move_card(m)
+                move_card(m, source)
 
     clean = {k: v for k, v in r.items() if not k.startswith("_")}
     stem = mm.safe_stem(r["book"])
